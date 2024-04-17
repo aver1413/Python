@@ -5,11 +5,11 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 import sqlite3
 import os
-import logging
 from handlers.text import text1, text2
 from time import sleep
 
-logger = logging.getLogger(__name__)
+
+
 
 
 class FSMAdmin(StatesGroup):
@@ -296,4 +296,3 @@ username TG: @{username}
 
 
 
-    

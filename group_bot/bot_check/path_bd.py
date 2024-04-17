@@ -1,0 +1,1 @@
+path = 'C:\\Users\\eaver\\OneDrive\\Desktop\\Python\\group_bot\\'
