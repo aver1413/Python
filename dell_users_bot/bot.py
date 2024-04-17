@@ -3,11 +3,12 @@ import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from handlers.start import router
+from token_bot import TOKEN
 
 
 
 logging.basicConfig(level=logging.INFO)
-bot = Bot(token="6742120409:AAGZ0fQaHz74UynIkef2cHOIEB-PDsspGJw")
+bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 
