@@ -11,4 +11,4 @@ async def check_user(message: types.Message):
         verified_users = file.read().splitlines()
     if str(user_id) not in verified_users:
         await message.delete()
-        await message.answer(f"Вам запрещено отправлять сообщения в этой группе.")
+        

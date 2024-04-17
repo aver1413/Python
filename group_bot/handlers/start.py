@@ -6,6 +6,8 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 import sqlite3
 import os
 import logging
+from handlers.text import text1, text2
+from time import sleep
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +28,10 @@ class FSMAdmin(StatesGroup):
     selfie_with_car = State()
 
 
+@dp.message_handler(commands="cancel", state="*")
+async def cmd_cancel(message: types.Message, state: FSMContext):
+    await state.finish()
+    await message.answer("Заполнение анкеты остановлено, чтобы заполнить её заново - введи /start", reply_markup=types.ReplyKeyboardRemove())
 
 
 @dp.message_handler(commands='start')
@@ -46,16 +52,16 @@ async def handle_contact(message: types.Message):
     id = message.from_user.id # ИД тг
     fullname = message.from_user.full_name ## Полное имя
     username = message.from_user.username ## Юзернейм тг
-    if contact:
-        phone_number = contact.phone_number
-        with open('number.txt', 'w') as file:
-            file.write(phone_number)
-        await message.answer(f"Спасибо! Ваш номер телефона {phone_number} был сохранен.")
-        await bot.send_message(id, 'Напишите своё ФИО')
-        await FSMAdmin.name.set()
-
+    phone_number = contact.phone_number
+    base = sqlite3.connect('user_info.db')
+    cur = base.cursor()
+    cur.execute('SELECT ID FROM user_info')
+    check1 = [row[0] for row in cur.fetchall()]
+    if message.from_user.id in check1:
+        await bot.send_message(message.from_user.id, 'Упс...\nТвоя анкета уже заполнена 👌')
     else:
-        await message.answer("Пожалуйста, поделитесь своим номером телефона через кнопку.")
+        await bot.send_message(id, 'Напиши своё ФИО\nДля того, чтобы прервать заполнение анкеты - веди /cancel')
+        await FSMAdmin.name.set()
 
 
     
@@ -66,7 +72,7 @@ async def v1(message: types.Message, state: FSMContext):
         global name
         name = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь введи свой город')
+    await bot.send_message(id, 'Теперь введи свой город 🏙')
 
 
 
@@ -77,7 +83,7 @@ async def v2(message: types.Message, state: FSMContext):
         global city
         city = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь введи свою марку авто')
+    await bot.send_message(id, 'Теперь введи свою марку автомобиля 🚘')
 
 
 @dp.message_handler(state=FSMAdmin.car_make)
@@ -87,7 +93,7 @@ async def v3(message: types.Message, state: FSMContext):
         global car_make
         car_make = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь введи модель своего авто')
+    await bot.send_message(id, 'Теперь введи модель своего автомобиля 🚘')
 
 
 @dp.message_handler(state=FSMAdmin.car_model)
@@ -97,7 +103,7 @@ async def v4(message: types.Message, state: FSMContext):
         global car_model
         car_model = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь пришли ГОС номер своего автомобиля')
+    await bot.send_message(id, 'Теперь пришли ГОС номер своего автомобиля 🚔')
 
 
 @dp.message_handler(state=FSMAdmin.license_plate)
@@ -107,7 +113,7 @@ async def v5(message: types.Message, state: FSMContext):
         global license_plate
         license_plate = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь пришли фото автомобиля где будет виден ГОС номер')
+    await bot.send_message(id, 'Теперь пришли фото автомобиля где будет виден ГОС номер 🚔')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.car_photo)
@@ -125,7 +131,7 @@ async def v6(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли фото СТС с лицевой стороны')
+    await message.reply('Теперь пришли фото СТС с лицевой стороны 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.sts_front)
@@ -143,7 +149,7 @@ async def v7(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли фото СТС с обратной стороны стороны')
+    await message.reply('Теперь пришли фото СТС с обратной стороны стороны 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.sts_back)
@@ -161,7 +167,7 @@ async def v8(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли фото ВУ с лицевой стороны')
+    await message.reply('Теперь пришли фото ВУ с лицевой стороны 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.driver_license_front)
@@ -179,7 +185,7 @@ async def v9(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли фото ВУ с обратной стороны стороны')
+    await message.reply('Теперь пришли фото ВУ с обратной стороны стороны 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.driver_license_back)
@@ -197,7 +203,7 @@ async def v9(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли селфи с ВУ')
+    await message.reply('Теперь пришли селфи с ВУ 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.selfie_with_license)
@@ -215,7 +221,7 @@ async def v9(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли селфи с автомобилем, чтобы был виден ГОС номер')
+    await message.reply('Теперь пришли селфи с автомобилем, чтобы был виден ГОС номер 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.selfie_with_car)
@@ -245,6 +251,9 @@ async def v9(message: types.Message, state: FSMContext):
             sts_front, sts_back, driver_license_front, driver_license_back, selfie_with_license, selfie_with_car, check_done))
     conn.commit()
     conn.close()
+    await bot.send_message(message.from_user.id, text1)
+    sleep(1)
+    await bot.send_message(message.from_user.id, text2)
     base = sqlite3.connect('user_info.db')
     cur = base.cursor()
     cur.execute('SELECT ID FROM admin')
@@ -255,7 +264,7 @@ async def v9(message: types.Message, state: FSMContext):
 Новая анкета:
 ID: {id}
 ФИО: {name}
-username TG: {username}
+username TG: @{username}
 Полное имя TG: {fullname}
 Номер телефона: {phone_number}
 Город: {city}
@@ -263,13 +272,28 @@ username TG: {username}
 Модель машины: {car_model}
 ГОС номер: {license_plate}
 """)
-        photo_path = f'Photo/{id}+car_photo.jpg'
-        with open(photo_path, 'rb') as photo_file:
-            await bot.send_photo(chat_id=id_admin[0], photo=photo_file)
-    
-        
+        photo1_path = f'Photo/{id}+car_photo.jpg'
+        with open(photo1_path, 'rb') as photo_file:
+            await bot.send_photo(chat_id=id_admin[0], photo=photo_file, caption='Фото автомобиля с ГОС номером')
+        photo2_path = f'Photo/{id}+sts_front.jpg'
+        with open(photo2_path, 'rb') as photo_file:
+            await bot.send_photo(chat_id=id_admin[0], photo=photo_file, caption='Фото СТС с лицовой стороны')
+        photo3_path = f'Photo/{id}+sts_back.jpg'
+        with open(photo3_path, 'rb') as photo_file:
+            await bot.send_photo(chat_id=id_admin[0], photo=photo_file, caption='Фото СТС с обратной стороны')
+        photo4_path = f'Photo/{id}+driver_license_front.jpg'
+        with open(photo4_path, 'rb') as photo_file:
+            await bot.send_photo(chat_id=id_admin[0], photo=photo_file, caption='Фото ВУ с лицевой стороны')
+        photo5_path = f'Photo/{id}+driver_license_back.jpg'
+        with open(photo5_path, 'rb') as photo_file:
+            await bot.send_photo(chat_id=id_admin[0], photo=photo_file, caption='Фото ВУ с обратной стороны')
+        photo6_path = f'Photo/{id}+selfie_with_license.jpg'
+        with open(photo6_path, 'rb') as photo_file:
+            await bot.send_photo(chat_id=id_admin[0], photo=photo_file, caption='Селфи с ВУ')
+        photo7_path = f'Photo/{id}+selfie_with_car.jpg'
+        with open(photo7_path, 'rb') as photo_file:
+            await bot.send_photo(chat_id=id_admin[0], photo=photo_file, caption='Селфи с авто')
 
 
 
     
-

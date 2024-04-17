@@ -4,7 +4,7 @@ from create_bot import dp
 
 
 
-from handlers import start, check_sms_group, data
+from handlers import start, check_sms_group, data, text
 
 
 
