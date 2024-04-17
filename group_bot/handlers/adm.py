@@ -12,12 +12,15 @@ class FSMAdmin(StatesGroup):
     admin1 = State()
     admin2 = State()
     del_adm1 = State()
+    admin_an1 = State()
+    admin_an2 = State()
+    del_adm_an1 = State()
 
 
 @dp.message_handler(commands="cancel", state="*")
 async def cmd_cancel(message: types.Message, state: FSMContext):
     await state.finish()
-    await message.answer("Хорошо, выбери другое действие", reply_markup=keyboard_admin)
+    await message.answer("Хорошо, выберите другое действие", reply_markup=keyboard_admin)
 
 async def check_admin(id):
     conn = sqlite3.connect('user_info.db')
@@ -28,7 +31,7 @@ async def check_admin(id):
     for id_admin in ids:
         if id in id_admin:
             return True
-    return 'Ты не администратор'
+    return 'Вы не администратор'
 
 
 
@@ -38,7 +41,7 @@ async def admin(message: types.Message):
     id = message.from_user.id
     check = await check_admin(id)
     if check == True:
-        await bot.send_message(id, 'Выбери действие', reply_markup=keyboard_admin)
+        await bot.send_message(id, 'Выберите действие', reply_markup=keyboard_admin)
     else:
         await bot.send_message(id, check)
 
@@ -50,10 +53,10 @@ async def check_user(message: types.Message):
     id = message.from_user.id
     check = await check_admin(id)
     if check == True:
-         await bot.send_message(id, 'Пришли username без @\nВведи /cancel если передумал')
+         await bot.send_message(id, 'Пришлите username без @\nВведи /cancel если передумал')
          await FSMAdmin.user.set()
     else:
-        await bot.send_message(id, 'Ты не администратор')
+        await bot.send_message(id, 'Вы не администратор')
 
 
 
@@ -113,10 +116,10 @@ async def delete(message: types.Message):
     id = message.from_user.id
     check = await check_admin(id)
     if check == True:
-         await bot.send_message(id, 'Пришли username без @\nВведи /cancel если передумал')
+         await bot.send_message(id, 'Пришлите username без @\nВведи /cancel если передумал')
          await FSMAdmin.delete.set()
     else:
-        await bot.send_message(id, 'Ты не администратор')
+        await bot.send_message(id, 'Вы не администратор')
 
 
 
@@ -141,10 +144,10 @@ async def add_admin(message: types.Message):
     id = message.from_user.id
     check = await check_admin(id)
     if check == True:
-         await bot.send_message(id, 'Пришли username без @\nВведи /cancel если передумал')
+         await bot.send_message(id, 'Пришлите username без @\nВведи /cancel если передумал')
          await FSMAdmin.admin1.set()
     else:
-        await bot.send_message(id, 'Ты не администратор')
+        await bot.send_message(id, 'Вы не администратор')
 
 
 
@@ -152,7 +155,7 @@ async def add_admin(message: types.Message):
 async def add_admin2(message: types.Message, state: FSMContext):
     global user
     user = message.text
-    await bot.send_message(message.from_user.id, 'Теперь пришли ID администратора\nID можно получить переслав любое сообщение пользователя в бота @getmyid_bot\nВведи /cancel если передумал')
+    await bot.send_message(message.from_user.id, 'Теперь пришлите ID администратора\nID можно получить переслав любое сообщение пользователя в бота @getmyid_bot\nВведи /cancel если передумал')
     await FSMAdmin.admin2.set()
 
 @dp.message_handler(state=FSMAdmin.admin2)
@@ -175,10 +178,10 @@ async def del_admin(message: types.Message):
     id = message.from_user.id
     check = await check_admin(id)
     if check == True:
-         await bot.send_message(id, 'Пришли username без @\nВведи /cancel если передумал')
+         await bot.send_message(id, 'Пришлите username без @\nВведи /cancel если передумал')
          await FSMAdmin.del_adm1.set()
     else:
-        await bot.send_message(id, 'Ты не администратор')
+        await bot.send_message(id, 'Вы не администратор')
 
 
 
@@ -198,3 +201,63 @@ async def del_admin2(message: types.Message, state: FSMContext):
     conn.close()
     await state.finish()
 
+@dp.message_handler(text='Добавить администратора в анкеты', state=None)
+async def add1_admin(message: types.Message):
+    id = message.from_user.id
+    check = await check_admin(id)
+    if check == True:
+         await bot.send_message(id, 'Пришлите username без @\nВведи /cancel если передумал')
+         await FSMAdmin.admin_an1.set()
+    else:
+        await bot.send_message(id, 'Вы не администратор')
+
+
+@dp.message_handler(state=FSMAdmin.admin_an1)
+async def add1_admin2(message: types.Message, state: FSMContext):
+    global user
+    user = message.text
+    await bot.send_message(message.from_user.id, 'Теперь пришлите ID администратора\nID можно получить переслав любое сообщение пользователя в бота @getmyid_bot\nВведи /cancel если передумал')
+    await FSMAdmin.admin_an2.set()
+
+@dp.message_handler(state=FSMAdmin.admin_an2)
+async def add1_admin3(message: types.Message, state: FSMContext):
+    global userid
+    userid = message.text
+    conn = sqlite3.connect('user_info.db')
+    cursor = conn.cursor()
+    query = "INSERT INTO admin_anket (username, ID) VALUES (?, ?)"
+    cursor.execute(query, (user, userid))
+    conn.commit()
+    conn.close()
+    await message.answer('Администратор успешно добавлен в базу данных.')
+    await state.finish()
+
+
+
+@dp.message_handler(text='Удалить администратора из анкет', state=None)
+async def del1_admin(message: types.Message):
+    id = message.from_user.id
+    check = await check_admin(id)
+    if check == True:
+         await bot.send_message(id, 'Пришлите username без @\nВведи /cancel если передумал')
+         await FSMAdmin.del_adm_an1.set()
+    else:
+        await bot.send_message(id, 'Вы не администратор')
+
+
+
+@dp.message_handler(state=FSMAdmin.del_adm_an1)
+async def del1_admin2(message: types.Message, state: FSMContext):
+    global user
+    user = message.text
+    conn = sqlite3.connect('user_info.db')
+    cursor = conn.cursor()
+    query = "DELETE FROM admin_anket WHERE username = ?"
+    cursor.execute(query, (user,))
+    conn.commit() 
+    if cursor.rowcount > 0:
+        await message.answer(f"Администратор с username '{user}' успешно удален.")
+    else:
+        await message.answer("Администратор не найден.")
+    conn.close()
+    await state.finish()

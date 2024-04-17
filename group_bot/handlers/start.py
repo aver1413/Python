@@ -38,9 +38,9 @@ async def cmd_cancel(message: types.Message, state: FSMContext):
 async def start(message: types.Message):
     await bot.send_message(message.from_user.id, """
 Добро пожаловать в бота 😎
-Для того, чтобы перейти в группы - тебе необходимо заполнить анкету
+Для того, чтобы перейти в группы - вам необходимо заполнить анкету
 Начнем с предоставления номера
-Чтобы предоставить свой номер - нажми на кнопку ниже 👇
+Чтобы предоставить свой номер - нажмите на кнопку ниже 👇
                            """, reply_markup=keyboard)
 
 
@@ -58,9 +58,9 @@ async def handle_contact(message: types.Message):
     cur.execute('SELECT ID FROM user_info')
     check1 = [row[0] for row in cur.fetchall()]
     if message.from_user.id in check1:
-        await bot.send_message(message.from_user.id, 'Упс...\nТвоя анкета уже заполнена 👌')
+        await bot.send_message(message.from_user.id, 'Упс...\nВаша анкета уже заполнена 👌')
     else:
-        await bot.send_message(id, 'Напиши своё ФИО\nДля того, чтобы прервать заполнение анкеты - веди /cancel')
+        await bot.send_message(id, 'Напишите своё ФИО\nДля того, чтобы прервать заполнение анкеты - ведите /cancel')
         await FSMAdmin.name.set()
 
 
@@ -72,7 +72,7 @@ async def v1(message: types.Message, state: FSMContext):
         global name
         name = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь введи свой город 🏙')
+    await bot.send_message(id, 'Теперь введите свой город 🏙')
 
 
 
@@ -83,7 +83,7 @@ async def v2(message: types.Message, state: FSMContext):
         global city
         city = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь введи свою марку автомобиля 🚘')
+    await bot.send_message(id, 'Теперь введите свою марку автомобиля 🚘')
 
 
 @dp.message_handler(state=FSMAdmin.car_make)
@@ -93,7 +93,7 @@ async def v3(message: types.Message, state: FSMContext):
         global car_make
         car_make = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь введи модель своего автомобиля 🚘')
+    await bot.send_message(id, 'Теперь введите модель своего автомобиля 🚘')
 
 
 @dp.message_handler(state=FSMAdmin.car_model)
@@ -103,7 +103,7 @@ async def v4(message: types.Message, state: FSMContext):
         global car_model
         car_model = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь пришли ГОС номер своего автомобиля 🚔')
+    await bot.send_message(id, 'Теперь пришлите ГОС номер своего автомобиля 🚔')
 
 
 @dp.message_handler(state=FSMAdmin.license_plate)
@@ -113,7 +113,7 @@ async def v5(message: types.Message, state: FSMContext):
         global license_plate
         license_plate = message.text
     await FSMAdmin.next()
-    await bot.send_message(id, 'Теперь пришли фото автомобиля где будет виден ГОС номер 🚔')
+    await bot.send_message(id, 'Теперь пришлите фото автомобиля где будет виден ГОС номер 🚔')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.car_photo)
@@ -131,7 +131,7 @@ async def v6(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли фото СТС с лицевой стороны 📑')
+    await message.reply('Теперь пришлите фото СТС с лицевой стороны 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.sts_front)
@@ -149,7 +149,7 @@ async def v7(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли фото СТС с обратной стороны стороны 📑')
+    await message.reply('Теперь пришлите фото СТС с обратной стороны 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.sts_back)
@@ -167,7 +167,7 @@ async def v8(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли фото ВУ с лицевой стороны 📑')
+    await message.reply('Теперь пришлите фото ВУ с лицевой стороны 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.driver_license_front)
@@ -185,7 +185,7 @@ async def v9(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли фото ВУ с обратной стороны стороны 📑')
+    await message.reply('Теперь пришлите фото ВУ с обратной стороны 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.driver_license_back)
@@ -203,7 +203,7 @@ async def v9(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли селфи с ВУ 📑')
+    await message.reply('Теперь пришлите селфи с ВУ 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.selfie_with_license)
@@ -221,7 +221,7 @@ async def v9(message: types.Message, state: FSMContext):
         with open(filepath, 'wb') as new_file:
             new_file.write(photo.read())
     await FSMAdmin.next()
-    await message.reply('Теперь пришли селфи с автомобилем, чтобы был виден ГОС номер 📑')
+    await message.reply('Теперь пришлите селфи с автомобилем, чтобы был виден ГОС номер 📑')
 
 
 @dp.message_handler(content_types=['photo'], state=FSMAdmin.selfie_with_car)
