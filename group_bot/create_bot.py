@@ -6,7 +6,7 @@ import os
 from token_bot import TOKEN
 
 storage = MemoryStorage()
-#bot = Bot(token=os.getenv('TOKEN'))
+
 
 bot = Bot(token=TOKEN)
 
