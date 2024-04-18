@@ -17,7 +17,7 @@ class FSMAdmin(StatesGroup):
     del_adm_an1 = State()
 
 
-@dp.message_handler(commands="cancel", state="*")
+@dp.message_handler(commands="can", state="*")
 async def cmd_cancel(message: types.Message, state: FSMContext):
     await state.finish()
     await message.answer("Хорошо, выберите другое действие", reply_markup=keyboard_admin)
@@ -53,7 +53,7 @@ async def check_user(message: types.Message):
     id = message.from_user.id
     check = await check_admin(id)
     if check == True:
-         await bot.send_message(id, 'Пришлите username без @\nВведи /cancel если передумал')
+         await bot.send_message(id, 'Пришлите username без @\nВведи /can если передумал')
          await FSMAdmin.user.set()
     else:
         await bot.send_message(id, 'Вы не администратор')

@@ -1,0 +1,15 @@
+[Unit]
+Description=MyUnit
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=group_bot
+ExecStart=group_bot/venv/bin/python3 group_bot/bot.py
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

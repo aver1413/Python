@@ -16,5 +16,7 @@ text2 = '''
 @transfermezhgorod
 
 @TAXI_GK_MEZHGOROD
+
+Если Вы уже состоите в наших группах то писать админам не нужно.
 '''
 
