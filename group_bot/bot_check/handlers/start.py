@@ -24,10 +24,15 @@ async def check_admin(id):
 @dp.message_handler(content_types=types.ContentType.ANY, is_forwarded=True)
 async def handle_forwarded_message(message: types.Message):
     print(message)
+    sender_name = message.forward_sender_name
+    print(sender_name)
     id = message.from_user.id
     check = await check_admin(id)
     if check == True:
-        forwarded_user_id = message.forward_sender_name
+        try:
+            forwarded_user_id = message.forward_from.first_name
+        except AttributeError:
+            forwarded_user_id = sender_name
         print(forwarded_user_id)
         conn = sqlite3.connect(f'{path}user_info.db')
         cursor = conn.cursor()
